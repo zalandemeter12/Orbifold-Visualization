@@ -1,0 +1,31 @@
+﻿  Skeleton.cpp
+C:\Users\Zalan\Documents\Dokumentumok\Coding\Grafika\Orbifold-Visualization\Programs\Skeleton\Skeleton\framework.h(167,17): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\Users\Zalan\Documents\Dokumentumok\Coding\Grafika\Orbifold-Visualization\Programs\Skeleton\Skeleton\Skeleton.cpp(28,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Zalan\Documents\Dokumentumok\Coding\Grafika\Orbifold-Visualization\Programs\Skeleton\Skeleton\Skeleton.cpp(214,62): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Zalan\Documents\Dokumentumok\Coding\Grafika\Orbifold-Visualization\Programs\Skeleton\Skeleton\Skeleton.cpp(214,106): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Zalan\Documents\Dokumentumok\Coding\Grafika\Orbifold-Visualization\Programs\Skeleton\Skeleton\Skeleton.cpp(237,27): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\Zalan\Documents\Dokumentumok\Coding\Grafika\Orbifold-Visualization\Programs\Skeleton\Skeleton\Skeleton.cpp(247,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Zalan\Documents\Dokumentumok\Coding\Grafika\Orbifold-Visualization\Programs\Skeleton\Skeleton\Skeleton.cpp(248,1): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\Zalan\Documents\Dokumentumok\Coding\Grafika\Orbifold-Visualization\Programs\Skeleton\Skeleton\Skeleton.cpp(254,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Zalan\Documents\Dokumentumok\Coding\Grafika\Orbifold-Visualization\Programs\Skeleton\Skeleton\Skeleton.cpp(260,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Zalan\Documents\Dokumentumok\Coding\Grafika\Orbifold-Visualization\Programs\Skeleton\Skeleton\Skeleton.cpp(261,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Zalan\Documents\Dokumentumok\Coding\Grafika\Orbifold-Visualization\Programs\Skeleton\Skeleton\Skeleton.cpp(262,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Zalan\Documents\Dokumentumok\Coding\Grafika\Orbifold-Visualization\Programs\Skeleton\Skeleton\Skeleton.cpp(263,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Zalan\Documents\Dokumentumok\Coding\Grafika\Orbifold-Visualization\Programs\Skeleton\Skeleton\Skeleton.cpp(264,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Zalan\Documents\Dokumentumok\Coding\Grafika\Orbifold-Visualization\Programs\Skeleton\Skeleton\Skeleton.cpp(265,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Zalan\Documents\Dokumentumok\Coding\Grafika\Orbifold-Visualization\Programs\Skeleton\Skeleton\Skeleton.cpp(266,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Zalan\Documents\Dokumentumok\Coding\Grafika\Orbifold-Visualization\Programs\Skeleton\Skeleton\Skeleton.cpp(267,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Zalan\Documents\Dokumentumok\Coding\Grafika\Orbifold-Visualization\Programs\Skeleton\Skeleton\Skeleton.cpp(268,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Zalan\Documents\Dokumentumok\Coding\Grafika\Orbifold-Visualization\Programs\Skeleton\Skeleton\Skeleton.cpp(269,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Zalan\Documents\Dokumentumok\Coding\Grafika\Orbifold-Visualization\Programs\Skeleton\Skeleton\Skeleton.cpp(270,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Zalan\Documents\Dokumentumok\Coding\Grafika\Orbifold-Visualization\Programs\Skeleton\Skeleton\Skeleton.cpp(271,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Zalan\Documents\Dokumentumok\Coding\Grafika\Orbifold-Visualization\Programs\Skeleton\Skeleton\Skeleton.cpp(294,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Zalan\Documents\Dokumentumok\Coding\Grafika\Orbifold-Visualization\Programs\Skeleton\Skeleton\Skeleton.cpp(295,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Zalan\Documents\Dokumentumok\Coding\Grafika\Orbifold-Visualization\Programs\Skeleton\Skeleton\Skeleton.cpp(296,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Zalan\Documents\Dokumentumok\Coding\Grafika\Orbifold-Visualization\Programs\Skeleton\Skeleton\Skeleton.cpp(358,62): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  Generating code
+  3 of 362 functions ( 0.8%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  Skeleton.vcxproj -> C:\Users\Zalan\Documents\Dokumentumok\Coding\Grafika\Orbifold-Visualization\Programs\Skeleton\bin\Skeleton.exe
