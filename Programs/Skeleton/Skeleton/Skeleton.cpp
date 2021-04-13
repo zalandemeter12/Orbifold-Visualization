@@ -21,6 +21,7 @@ struct Material {
 	float  shininess;
 	vec3 F0;
 	int rough, reflective;
+	int portal = false;
 };
 
 struct RoughMaterial : Material {
@@ -39,8 +40,7 @@ inline vec3 operator/(const vec3& v1, const vec3& v2) { return vec3(v1.x / v2.x,
 struct SmoothMaterial : Material {
 	SmoothMaterial(vec3 n, vec3 kappa) {
 		vec3 one(1, 1, 1);
-		F0 = ((n - one) * (n - one) + kappa * kappa) /
-			((n + one) * (n + one) + kappa * kappa);
+		F0 = ((n - one) * (n - one) + kappa * kappa) / ((n + one) * (n + one) + kappa * kappa);
 		rough = false;
 		reflective = true;
 	}
@@ -65,43 +65,11 @@ public:
 	virtual Hit intersect(const Ray& ray) = 0;
 };
 
-struct Sphere : public Intersectable {
-	vec3 center;
-	float radius;
-
-	Sphere(const vec3& _center, float _radius, Material* _material) {
-		center = _center;
-		radius = _radius;
-		material = _material;
-	}
-
-	Hit intersect(const Ray& ray) {
-		Hit hit;
-		vec3 dist = ray.start - center;
-		float a = dot(ray.dir, ray.dir);
-		float b = dot(dist, ray.dir) * 2.0f;
-		float c = dot(dist, dist) - radius * radius;
-		float discr = b * b - 4.0f * a * c;
-		if (discr < 0) return hit;
-		float sqrt_discr = sqrtf(discr);
-		float t1 = (-b + sqrt_discr) / 2.0f / a;	// t1 >= t2 for sure
-		float t2 = (-b - sqrt_discr) / 2.0f / a;
-		if (t1 <= 0) return hit;
-		hit.t = (t2 > 0) ? t2 : t1;
-		hit.position = ray.start + ray.dir * hit.t;
-		hit.normal = (hit.position - center) * (1.0f / radius);
-		hit.material = material;
-		return hit;
-	}
-};
-
 struct Paraboloid : public Intersectable {
 	float a, b, c;
 
 	Paraboloid(float _a, float _b, float _c, Material* _material) {
-		a = _a;
-		b = _b;
-		c = _c;
+		a = _a; b = _b; c = _c;
 		material = _material;
 	}
 
@@ -113,16 +81,16 @@ struct Paraboloid : public Intersectable {
 		float discr = B * B - 4.0f * A * C;
 		if (discr < 0) return hit;
 		float sqrt_discr = sqrtf(discr);
-		float t1 = (-B + sqrt_discr) / 2.0f / A;	// t1 >= t2 for sure
+		float t1 = (-B + sqrt_discr) / 2.0f / A;
 		float t2 = (-B - sqrt_discr) / 2.0f / A;
 		if (t1 <= 0) return hit;
 		vec3 intersect1 = ray.start + ray.dir * t1;
 		vec3 intersect2 = ray.start + ray.dir * t2;
-		if (pow((intersect2.x), 2) + pow((intersect2.y), 2) + pow((intersect2.z), 2) <= 0.3 * 0.3) {
+		if (powf((intersect2.x), 2) + powf((intersect2.y), 2) + powf((intersect2.z), 2) <= 0.3 * 0.3) {
 			hit.t = t2;
 			hit.position = intersect2;
 		}
-		else if (pow((intersect1.x), 2) + pow((intersect1.y), 2) + pow((intersect1.z), 2) <= 0.3 * 0.3) {
+		else if (powf((intersect1.x), 2) + powf((intersect1.y), 2) + powf((intersect1.z), 2) <= 0.3 * 0.3) {
 			hit.t = t1;
 			hit.position = intersect1;
 		}
@@ -142,6 +110,7 @@ struct Dodecahedron : public Intersectable {
 		face5(unsigned int _i = 0, unsigned int _j = 0, unsigned int _k = 0, unsigned int _l = 0, unsigned int _m = 0)
 			: i(_i - 1), j(_j - 1), k(_k - 1), l(_l - 1), m(_m - 1) {}
 	};
+
 	std::vector<vec3> vertices;
 	std::vector<face5> faces;
 	Material* materialRefl;
@@ -183,10 +152,10 @@ struct Dodecahedron : public Intersectable {
 		vec3 E = vertices[currentFace.m];
 
 		float d1 = getDist(hit, A, B);
-		float d2 = getDist(hit, A, E);
-		float d3 = getDist(hit, B, C);
-		float d4 = getDist(hit, C, D);
-		float d5 = getDist(hit, D, E);
+		float d2 = getDist(hit, B, C);
+		float d3 = getDist(hit, C, D);
+		float d4 = getDist(hit, D, E);
+		float d5 = getDist(hit, E, A);
 
 		if (d1 < 0.1 || d2 < 0.1 || d3 < 0.1 || d4 < 0.1 || d5 < 0.1)
 			hit.material = material;
@@ -210,10 +179,12 @@ public:
 		right = normalize(cross(vup, w)) * f * tanf(fov / 2);
 		up = normalize(cross(w, right)) * f * tanf(fov / 2);
 	}
+
 	Ray getRay(int X, int Y) {
 		vec3 dir = lookat + right * (2.0 * (X + 0.5) / windowWidth - 1) + up * (2.0 * (Y + 0.5) / windowHeight - 1) - eye;
 		return Ray(eye, dir);
 	}
+	
 	void Animate(float dt) {
 		eye = vec3((eye.x - lookat.x) * cosf(dt) + (eye.z - lookat.z) * sinf(dt) + lookat.x,
 			eye.y,
@@ -234,7 +205,7 @@ struct Light {
 	}
 };
 
-const float epsilon = 0.01;
+const float epsilon = 0.0001;
 const int maxdepth = 5;
 
 class Scene {
@@ -254,46 +225,24 @@ public:
 		Material* gold = new SmoothMaterial(vec3(0.17, 0.35, 1.5), vec3(3.1, 2.7, 1.9));
 		objects.push_back(new Paraboloid(5, 5, 1, gold));
 		
-		std::vector<vec3> vertices;
-		std::vector<Dodecahedron::face5> faces;
+		vec3 vertexArr[] = {vec3(0,0.618,1.618), vec3(0,-0.618,1.618),	vec3(0,-0.618,-1.618),	vec3(0,0.618,-1.618), 
+							vec3(1.618,0,0.618), vec3(-1.618,0,0.618),	vec3(-1.618,0,-0.618),	vec3(1.618,0,-0.618),
+							vec3(0.618,1.618,0), vec3(-0.618,1.618,0),	vec3(-0.618,-1.618,0),	vec3(0.618,-1.618,0),
+							vec3(1,1,1),		 vec3(-1,1,1),			vec3(-1,-1,1),			vec3(1,-1,1),
+							vec3(1,-1,-1),		 vec3(1,1,-1),			vec3(-1,1,-1),			vec3(-1,-1,-1) };
+		std::vector<vec3> vertices(vertexArr, vertexArr + 20);
 
-		vertices.push_back(vec3(0,0.618,1.618));
-		vertices.push_back(vec3(0,-0.618,1.618));
-		vertices.push_back(vec3(0,-0.618,-1.618));
-		vertices.push_back(vec3(0,0.618,-1.618));
-		vertices.push_back(vec3(1.618,0,0.618));
-		vertices.push_back(vec3(-1.618,0,0.618));
-		vertices.push_back(vec3(-1.618,0,-0.618));
-		vertices.push_back(vec3(1.618,0,-0.618));
-		vertices.push_back(vec3(0.618,1.618,0));
-		vertices.push_back(vec3(-0.618,1.618,0));
-		vertices.push_back(vec3(-0.618,-1.618,0));
-		vertices.push_back(vec3(0.618,-1.618,0));
-		vertices.push_back(vec3(1,1,1));
-		vertices.push_back(vec3(-1,1,1));
-		vertices.push_back(vec3(-1,-1,1));
-		vertices.push_back(vec3(1,-1,1));
-		vertices.push_back(vec3(1,-1,-1));
-		vertices.push_back(vec3(1,1,-1));
-		vertices.push_back(vec3(-1,1,-1));
-		vertices.push_back(vec3(-1,-1,-1));
-
-		faces.push_back(Dodecahedron::face5(1,2,16,5,13));
-		faces.push_back(Dodecahedron::face5(1,13,9,10,14));
-		faces.push_back(Dodecahedron::face5(1,14,6,15,2));
-		faces.push_back(Dodecahedron::face5(2,15,11,12,16));
-		faces.push_back(Dodecahedron::face5(3,4,18,8,17));
-		faces.push_back(Dodecahedron::face5(3,17,12,11,20));
-		faces.push_back(Dodecahedron::face5(3,20,7,19,4));
-		faces.push_back(Dodecahedron::face5(19,10,9,18,4));
-		faces.push_back(Dodecahedron::face5(16,12,17,8,5));
-		faces.push_back(Dodecahedron::face5(5,8,18,9,13));
-		faces.push_back(Dodecahedron::face5(14,10,19,7,6));
-		faces.push_back(Dodecahedron::face5(6,7,20,11,15));
+		Dodecahedron::face5 faceArr[] = {Dodecahedron::face5(1,2,16,5,13),		Dodecahedron::face5(1,13,9,10,14),
+										 Dodecahedron::face5(1,14,6,15,2),		Dodecahedron::face5(2,15,11,12,16),
+										 Dodecahedron::face5(3,4,18,8,17),		Dodecahedron::face5(3,17,12,11,20),
+										 Dodecahedron::face5(3,20,7,19,4),		Dodecahedron::face5(19,10,9,18,4),
+										 Dodecahedron::face5(16,12,17,8,5),		Dodecahedron::face5(5,8,18,9,13),
+										 Dodecahedron::face5(14,10,19,7,6),		Dodecahedron::face5(6,7,20,11,15) };
+		std::vector<Dodecahedron::face5> faces(faceArr, faceArr + 12);
 
 		Material* ceramicPink = new RoughMaterial(vec3(0.3, 0.25, 0.3), vec3(2, 2, 2), 1000);
-		Material* ceramicGreen = new RoughMaterial(vec3(0.1, 0.3, 0.1), vec3(2, 2, 2), 1000);
 		Material* zinc = new SmoothMaterial(vec3(1.2338, 0.92943, 0.67767), vec3(5.8730, 4.9751, 4.0122));
+		zinc->portal = true;
 		objects.push_back(new Dodecahedron(vertices, faces, ceramicPink, zinc));
 	}
 
@@ -310,7 +259,7 @@ public:
 	Hit firstIntersect(Ray ray) {
 		Hit bestHit;
 		for (Intersectable* object : objects) {
-			Hit hit = object->intersect(ray); //  hit.t < 0 if no intersection
+			Hit hit = object->intersect(ray);
 			if (hit.t > 0 && (bestHit.t < 0 || hit.t < bestHit.t))  bestHit = hit;
 		}
 		if (dot(ray.dir, bestHit.normal) > 0) bestHit.normal = bestHit.normal * (-1);
@@ -338,10 +287,8 @@ public:
 				vec3 direction = normalize(light->position - hit.position);
 				float distance = length(light->position - hit.position);
 				vec3 Le = light->radiance(distance);
-
 				Ray shadowRay(hit.position + hit.normal * epsilon, direction);
 				Hit shadowHit = firstIntersect(shadowRay);
-
 				float cosTheta = dot(hit.normal, direction);
 				if (cosTheta > 0 && (shadowHit.t < 0 || shadowHit.t > distance)) {
 					outRadiance = outRadiance + Le * hit.material->kd * cosTheta;
@@ -351,45 +298,53 @@ public:
 				}
 			}
 		}
+
 		if (hit.material->reflective) {
 			vec3 reflectedDir = ray.dir - hit.normal * dot(hit.normal, ray.dir) * 2.0f;
+			vec3 reflectedPoint = hit.position + hit.normal * epsilon;
 			float cosa = -dot(ray.dir, hit.normal);
 			vec3 one(1, 1, 1);
-			vec3 F = hit.material->F0 + (one - hit.material->F0) * pow(1 - cosa, 5);
-			outRadiance = outRadiance + F * trace(Ray(hit.position + hit.normal * epsilon, reflectedDir), d + 1);
-			
+			vec3 F = hit.material->F0 + (one - hit.material->F0) * powf(1 - cosa, 5);
+			if (hit.material->portal) {
+				float theta = 72 * M_PI / 180;
+				vec3 rotDir = reflectedDir * cosf(theta) + cross(hit.normal, reflectedDir) * sinf(theta) + hit.normal * dot(hit.normal, reflectedDir) * (1 - cosf(theta));
+				vec3 rotPoint = reflectedPoint * cosf(theta) + cross(hit.normal, reflectedPoint) * sinf(theta) + hit.normal * dot(hit.normal, reflectedPoint) * (1 - cosf(theta));
+				outRadiance = outRadiance + F * trace(Ray(rotPoint, rotDir), d + 1);
+			}
+			else {
+				outRadiance = outRadiance + F * trace(Ray(reflectedPoint, reflectedDir), d + 1);
+			}
 		}
+		
 		return outRadiance;
 	}
 
 	void Animate(float dt) { camera.Animate(dt); }
 };
 
-GPUProgram gpuProgram; // vertex and fragment shaders
+GPUProgram gpuProgram;
 Scene scene;
 
-// vertex shader in GLSL
 const char* vertexSource = R"(
 	#version 330
     precision highp float;
 
-	layout(location = 0) in vec2 cVertexPosition;	// Attrib Array 0
+	layout(location = 0) in vec2 cVertexPosition;
 	out vec2 texcoord;
 
 	void main() {
-		texcoord = (cVertexPosition + vec2(1, 1))/2;							// -1,1 to 0,1
-		gl_Position = vec4(cVertexPosition.x, cVertexPosition.y, 0, 1); 		// transform to clipping space
+		texcoord = (cVertexPosition + vec2(1, 1))/2;				
+		gl_Position = vec4(cVertexPosition.x, cVertexPosition.y, 0, 1); 	
 	}
 )";
 
-// fragment shader in GLSL
 const char* fragmentSource = R"(
 	#version 330
     precision highp float;
 
 	uniform sampler2D textureUnit;
-	in  vec2 texcoord;			// interpolated texture coordinates
-	out vec4 fragmentColor;		// output that goes to the raster memory as told by glBindFragDataLocation
+	in  vec2 texcoord;			
+	out vec4 fragmentColor;		
 
 	void main() {
 		fragmentColor = texture(textureUnit, texcoord); 
@@ -397,86 +352,59 @@ const char* fragmentSource = R"(
 )";
 
 class FullScreenTexturedQuad {
-	unsigned int vao;	// vertex array object id and texture id
+	unsigned int vao;
 	Texture texture;
 public:
 	FullScreenTexturedQuad(int windowWidth, int windowHeight, std::vector<vec4>& image)
-		: texture(windowWidth, windowHeight, image)
-	{
-		glGenVertexArrays(1, &vao);	// create 1 vertex array object
-		glBindVertexArray(vao);		// make it active
-
-		unsigned int vbo;		// vertex buffer objects
-		glGenBuffers(1, &vbo);	// Generate 1 vertex buffer objects
-
-		// vertex coordinates: vbo0 -> Attrib Array 0 -> vertexPosition of the vertex shader
-		glBindBuffer(GL_ARRAY_BUFFER, vbo); // make it active, it is an array
-		float vertexCoords[] = { -1, -1,  1, -1,  1, 1,  -1, 1 };	// two triangles forming a quad
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertexCoords), vertexCoords, GL_STATIC_DRAW);	   // copy to that part of the memory which is not modified 
+		: texture(windowWidth, windowHeight, image) {
+		glGenVertexArrays(1, &vao);
+		glBindVertexArray(vao);
+		unsigned int vbo;		
+		glGenBuffers(1, &vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo); 
+		float vertexCoords[] = { -1, -1,  1, -1,  1, 1,  -1, 1 };	
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertexCoords), vertexCoords, GL_STATIC_DRAW);	 
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);     // stride and offset: it is tightly packed
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);     
 	}
 
 	void Draw() {
-		glBindVertexArray(vao);	// make the vao and its vbos active playing the role of the data source
+		glBindVertexArray(vao);
 		gpuProgram.setUniform(texture, "textureUnit");
-		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);	// draw two triangles forming a quad
+		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 	}
 };
 
 FullScreenTexturedQuad* fullScreenTexturedQuad;
 
-// Initialization, create an OpenGL context
 void onInitialization() {
 	glViewport(0, 0, windowWidth, windowHeight);
 	scene.build();
-
+	scene.Animate(0.2f);
 	std::vector<vec4> image(windowWidth * windowHeight);
 	long timeStart = glutGet(GLUT_ELAPSED_TIME);
 	scene.render(image);
 	long timeEnd = glutGet(GLUT_ELAPSED_TIME);
 	printf("Rendering time: %d milliseconds\n", (timeEnd - timeStart));
-
-	// copy image to GPU as a texture
 	fullScreenTexturedQuad = new FullScreenTexturedQuad(windowWidth, windowHeight, image);
-
-	// create program for the GPU
 	gpuProgram.create(vertexSource, fragmentSource, "fragmentColor");
 }
 
-// Window has become invalid: Redraw
 void onDisplay() {
-	glClearColor(1.0f, 0.5f, 0.8f, 1.0f);							// background color 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the screen
-
+	glClearColor(1.0f, 0.5f, 0.8f, 1.0f); 
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	std::vector<vec4> image(windowWidth * windowHeight);
 	scene.render(image);
-
-	// copy image to GPU as a texture
 	fullScreenTexturedQuad = new FullScreenTexturedQuad(windowWidth, windowHeight, image);
-
 	fullScreenTexturedQuad->Draw();
-	glutSwapBuffers();									// exchange the two buffers
+	glutSwapBuffers();
 }
 
-// Key of ASCII code pressed
-void onKeyboard(unsigned char key, int pX, int pY) {
-}
+void onKeyboard(unsigned char key, int pX, int pY) {}
+void onKeyboardUp(unsigned char key, int pX, int pY) {}
+void onMouse(int button, int state, int pX, int pY) {}
+void onMouseMotion(int pX, int pY) {}
 
-// Key of ASCII code released
-void onKeyboardUp(unsigned char key, int pX, int pY) {
-
-}
-
-// Mouse click event
-void onMouse(int button, int state, int pX, int pY) {
-}
-
-// Move mouse with key pressed
-void onMouseMotion(int pX, int pY) {
-}
-
-// Idle event indicating that some time elapsed: do animation here
 void onIdle() {
 	scene.Animate(0.05f);
 	glutPostRedisplay();
