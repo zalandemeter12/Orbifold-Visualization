@@ -95,10 +95,7 @@ struct Paraboloid : public Intersectable {
 			hit.position = intersect1;
 		}
 		else return hit;
-		vec3 u = vec3(1, 0, (2 * a * hit.position.x) / c);
-		vec3 w = vec3(0, 1, (2 * b * hit.position.y) / c);
-		vec3 d = normalize(cross(u, w));
-		hit.normal = hit.position - (hit.position + d);
+		hit.normal = normalize(cross(vec3(1, 0, (2 * a * hit.position.x) / c), vec3(0, 1, (2 * b * hit.position.y) / c)));
 		hit.material = material;
 		return hit;
 	}
@@ -145,6 +142,7 @@ struct Dodecahedron : public Intersectable {
 				currentFace = face;
 			}
 		}
+
 		vec3 A = vertices[currentFace.i];
 		vec3 B = vertices[currentFace.j];
 		vec3 C = vertices[currentFace.k];
@@ -161,7 +159,6 @@ struct Dodecahedron : public Intersectable {
 			hit.material = material;
 		else
 			hit.material = materialRefl;
-
 		return hit;
 	}
 };
