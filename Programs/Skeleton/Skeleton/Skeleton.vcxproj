@@ -50,6 +50,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(SolutionDir)..\..\Libs\glew-1.13.0\include\;$(SolutionDir)..\..\Libs\freeglut\include\;$(SolutionDir)..\..\Libs\devil-1.7.8\include\;$(SolutionDir)..\..\Libs\glm\;$(SolutionDir)..\..\Common\src\</AdditionalIncludeDirectories>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -64,6 +65,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>$(SolutionDir)..\..\Libs\glew-1.13.0\include\;$(SolutionDir)..\..\Libs\freeglut\include\;$(SolutionDir)..\..\Libs\devil-1.7.8\include\</AdditionalIncludeDirectories>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
